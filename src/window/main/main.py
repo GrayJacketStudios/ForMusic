@@ -77,6 +77,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.pushButton_2.setEnabled(True)
             self.progressBar.setEnabled(False)
             self.edit_cb_extension.setEnabled(True)
+            QtWidgets.QMessageBox.information(self, "Operación realizada", "¡Se ha descargado la canción exitosamente!")
+        if d["status"] == "error":
+            self.progressBar.setValue(0)
+            self.pushButton_2.setEnabled(True)
+            self.progressBar.setEnabled(False)
+            self.edit_cb_extension.setEnabled(True)
+            QtWidgets.QMessageBox.warning(self, "Error", "Ocurrio un error inesperado.")
 
 
 def format_bytes(size):
