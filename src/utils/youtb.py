@@ -10,6 +10,7 @@ class VideoGetter:
         self.formats = None
 
     def getUrl(self, url):
+        self.url = self.title = self.duracion = self.imageurl = self.video = self.formats = None
         try:
             with youtube_dl.YoutubeDL() as ydl:
                 result = ydl.extract_info(

@@ -50,8 +50,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def signal_cb_changed(self, signal):
         """ accion cuando cambian nuestro combobox """
         self.preffered_format = signal
-        self.edit_size.setText(format_bytes(self.vg.formats[signal]["filesize"]))
-        self.progressBar.setMaximum(self.vg.formats[signal]["filesize"])
+        if signal != "":
+            self.edit_size.setText(format_bytes(self.vg.formats[signal]["filesize"]))
+            self.progressBar.setMaximum(self.vg.formats[signal]["filesize"])
 
 
     def signal_guardar(self):
