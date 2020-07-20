@@ -22,8 +22,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def signal_search_url(self):
         """ Busca la informacion del video segun la url proporcionada """
         QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
-        self.vg.getUrl(self.edit_url.text())
-        if self.vg.video is not None:
+        res = self.vg.getUrl(self.edit_url.text())
+        if res == 0:
             self.edit_nombre.setText(self.vg.title)
             self.edit_duracion.setText(format_time(self.vg.duracion))
             try:
@@ -32,6 +32,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 pass
             self.vg.get_audio_formats()
             self.set_cb_extensions()
+        elif res == -1:
+            self.error_inesperado("La url introducida no es correcta, revisala!")
+        elif res == -2:
+            self.error_inesperado("No nos hemos podido conectar, revisa tu conexion.")
         QtWidgets.QApplication.restoreOverrideCursor()
 
     def set_image(self, url):
@@ -67,7 +71,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.vg.getVideo(self, self.preffered_format, filename)
 
         except TypeError:
-            pass
+            self.error_inesperado()
 
     def progressHook(self, d):
         """ Nuestro hook con ydl que nos indica el estado de la descarga """
@@ -84,7 +88,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.pushButton_2.setEnabled(True)
             self.progressBar.setEnabled(False)
             self.edit_cb_extension.setEnabled(True)
-            QtWidgets.QMessageBox.warning(self, "Error", "Ocurrio un error inesperado.")
+            self.error_inesperado()
+
+    def error_inesperado(self, txt="Ocurrio un error inesperado."):
+        QtWidgets.QMessageBox.warning(self, "Error", txt)
+
 
 
 def format_bytes(size):
