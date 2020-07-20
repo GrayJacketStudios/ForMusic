@@ -10,6 +10,7 @@ class VideoGetter:
         self.formats = None
 
     def getUrl(self, url):
+        self.url = self.title = self.duracion = self.imageurl = self.video = self.formats = None
         try:
             with youtube_dl.YoutubeDL() as ydl:
                 result = ydl.extract_info(
@@ -25,8 +26,12 @@ class VideoGetter:
             self.imageurl = video["thumbnails"][0]["url"]
             self.video = video
             self.duracion = video["duration"]
-        except youtube_dl.utils.DownloadError:
-            pass
+            return 0
+        except youtube_dl.DownloadError as error:
+            if "is not a valid URL" in str(error):
+                return -1
+            elif "Unable to download webpage" in str(error):
+                return -2
 
     def getVideo(self, parent, format, path):
         temp_filename = path.split(".")
