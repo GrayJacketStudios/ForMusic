@@ -12,13 +12,16 @@ class VideoGetter:
     def getUrl(self, url):
         self.url = self.title = self.duracion = self.imageurl = self.video = self.formats = None
         try:
-            with youtube_dl.YoutubeDL() as ydl:
+            ydl_options = {
+                "noplaylist": True
+            }
+            with youtube_dl.YoutubeDL(ydl_options) as ydl:
                 result = ydl.extract_info(
                     url,
                     download=False
                 )
             if 'entries' in result:
-                video = result['entries'][0]
+                print(result['entries'])
             else:
                 video = result
             self.url = url
@@ -32,6 +35,8 @@ class VideoGetter:
                 return -1
             elif "Unable to download webpage" in str(error):
                 return -2
+        except IndexError:
+            return -1
 
     def getVideo(self, parent, format, path):
         temp_filename = path.split(".")
@@ -42,11 +47,13 @@ class VideoGetter:
             path += "."+format
         ydl_options = {
             "format": self.formats[format]["format_id"],
+            "noplaylist": True,
             "progress_hooks": [parent.progressHook],
             'outtmpl': path,
         }
         with youtube_dl.YoutubeDL(ydl_options) as ydl:
             ydl.download([self.url])
+
 
 
 

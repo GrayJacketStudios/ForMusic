@@ -13,10 +13,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         Ui_MainWindow.__init__(self)
 
         self.setupUi(self)
+        self.setWindowTitle("ForMusic - descargar musica")
         self.vg = VideoGetter()
 
         self.preffered_format = None
-
         self.show()
 
     def signal_search_url(self):
@@ -37,6 +37,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         elif res == -2:
             self.error_inesperado("No nos hemos podido conectar, revisa tu conexion.")
         QtWidgets.QApplication.restoreOverrideCursor()
+        self.pushButton_2.setEnabled(True)
 
     def set_image(self, url):
         """ Coloca la imagen del video para identificarlo correctamente """
@@ -62,12 +63,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def signal_guardar(self):
         """ accion el pushbutton_2, indicando para guardar el archivo...
         >>> Preguntemos donde! """
+
         try:
             filename, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Guardar como...", self.edit_nombre.text(), f"{self.preffered_format} (*.{self.preffered_format})")
             if filename != "":
                 self.progressBar.setEnabled(True)
                 self.pushButton_2.setEnabled(False)
                 self.edit_cb_extension.setEnabled(False)
+
                 self.vg.getVideo(self, self.preffered_format, filename)
 
         except TypeError:
@@ -89,6 +92,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.progressBar.setEnabled(False)
             self.edit_cb_extension.setEnabled(True)
             self.error_inesperado()
+
 
     def error_inesperado(self, txt="Ocurrio un error inesperado."):
         QtWidgets.QMessageBox.warning(self, "Error", txt)
