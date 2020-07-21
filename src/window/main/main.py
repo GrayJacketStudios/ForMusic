@@ -7,6 +7,8 @@ from design.main_window import Ui_MainWindow
 from src.utils.youtb import VideoGetter
 
 
+from src.utils.worker import Worker
+
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -17,7 +19,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.vg = VideoGetter()
 
         self.preffered_format = None
+
+        self.threadpool = QtCore.QThreadPool()
+        self.run_downloader = True
+
         self.show()
+
+
+
 
     def signal_search_url(self):
         """ Busca la informacion del video segun la url proporcionada """
@@ -70,16 +79,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.progressBar.setEnabled(True)
                 self.pushButton_2.setEnabled(False)
                 self.edit_cb_extension.setEnabled(False)
+                self.descargar_musica(self.preffered_format, filename)
 
-                self.vg.getVideo(self, self.preffered_format, filename)
 
-        except TypeError:
-            self.error_inesperado()
+        except TypeError as err:
+            self.error_inesperado(f"Error: {err}")
 
     def progressHook(self, d):
         """ Nuestro hook con ydl que nos indica el estado de la descarga """
         if d["status"] == "downloading":
             self.progressBar.setValue(d["downloaded_bytes"])
+            if self.run_downloader is False:
+                raise ValueError
         if d["status"] == "finished":
             self.progressBar.setValue(0)
             self.pushButton_2.setEnabled(True)
@@ -96,6 +107,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def error_inesperado(self, txt="Ocurrio un error inesperado."):
         QtWidgets.QMessageBox.warning(self, "Error", txt)
+
+    def descargar_musica(self, format, path):
+        self.run_downloader = True
+        worker = Worker(self.vg.getVideo, (self, self.preffered_format, path))
+        self.threadpool.start(worker)
+
+    def signal_btn_cancelar(self):
+        self.run_downloader = False
+
+
+
 
 
 

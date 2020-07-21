@@ -93,6 +93,9 @@ class Ui_MainWindow(object):
         self.label_4 = QtWidgets.QLabel(self.frame_4)
         self.label_4.setObjectName("label_4")
         self.formLayout.setWidget(4, QtWidgets.QFormLayout.LabelRole, self.label_4)
+        self.pushButton_3 = QtWidgets.QPushButton(self.frame_4)
+        self.pushButton_3.setObjectName("pushButton_3")
+        self.formLayout.setWidget(6, QtWidgets.QFormLayout.LabelRole, self.pushButton_3)
         self.horizontalLayout.addWidget(self.frame_4)
         self.verticalLayout.addWidget(self.frame_2)
         self.progressBar = QtWidgets.QProgressBar(self.centralwidget)
@@ -118,6 +121,7 @@ class Ui_MainWindow(object):
         self.pushButton.released.connect(MainWindow.signal_search_url)
         self.pushButton_2.pressed.connect(MainWindow.signal_guardar)
         self.edit_cb_extension.currentIndexChanged['QString'].connect(MainWindow.signal_cb_changed)
+        self.pushButton_3.released.connect(MainWindow.signal_btn_cancelar)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -130,3 +134,4 @@ class Ui_MainWindow(object):
         self.pushButton_2.setText(_translate("MainWindow", "Guardar como..."))
         self.label_3.setText(_translate("MainWindow", "Formato"))
         self.label_4.setText(_translate("MainWindow", "Peso (mb)"))
+        self.pushButton_3.setText(_translate("MainWindow", "Cancelar"))
