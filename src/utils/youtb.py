@@ -52,8 +52,10 @@ class VideoGetter:
             'outtmpl': path,
         }
         with youtube_dl.YoutubeDL(ydl_options) as ydl:
-            ydl.download([self.url])
-
+            try:
+                ydl.download([self.url])
+            except ValueError:
+                return
 
 
 

@@ -68,7 +68,7 @@
         </widget>
        </item>
        <item row="0" column="1">
-        <widget class="QPushButton" name="pushButton">
+        <widget class="QPushButton" name="btn_buscar">
          <property name="maximumSize">
           <size>
            <width>90</width>
@@ -167,7 +167,7 @@
            </spacer>
           </item>
           <item row="6" column="1">
-           <widget class="QPushButton" name="pushButton_2">
+           <widget class="QPushButton" name="btn_guardar">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -197,6 +197,16 @@
            <widget class="QLabel" name="label_4">
             <property name="text">
              <string>Peso (mb)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <widget class="QPushButton" name="btn_cancelar">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Cancelar</string>
             </property>
            </widget>
           </item>
@@ -243,7 +253,7 @@
  <resources/>
  <connections>
   <connection>
-   <sender>pushButton</sender>
+   <sender>btn_buscar</sender>
    <signal>released()</signal>
    <receiver>MainWindow</receiver>
    <slot>signal_search_url()</slot>
@@ -259,14 +269,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>pushButton_2</sender>
+   <sender>btn_guardar</sender>
    <signal>pressed()</signal>
    <receiver>MainWindow</receiver>
    <slot>signal_guardar()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>270</x>
-     <y>220</y>
+     <y>204</y>
     </hint>
     <hint type="destinationlabel">
      <x>557</x>
@@ -282,11 +292,27 @@
    <hints>
     <hint type="sourcelabel">
      <x>309</x>
-     <y>146</y>
+     <y>138</y>
     </hint>
     <hint type="destinationlabel">
      <x>635</x>
      <y>120</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_cancelar</sender>
+   <signal>released()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>signal_btn_cancelar()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>74</x>
+     <y>198</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>42</x>
+     <y>456</y>
     </hint>
    </hints>
   </connection>

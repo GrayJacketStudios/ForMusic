@@ -7,6 +7,8 @@ from design.main_window import Ui_MainWindow
 from src.utils.youtb import VideoGetter
 
 
+from src.utils.worker import Worker
+
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -17,7 +19,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.vg = VideoGetter()
 
         self.preffered_format = None
+
+        self.threadpool = QtCore.QThreadPool()
+        self.run_downloader = True
+
         self.show()
+
+
+
 
     def signal_search_url(self):
         """ Busca la informacion del video segun la url proporcionada """
@@ -37,7 +46,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         elif res == -2:
             self.error_inesperado("No nos hemos podido conectar, revisa tu conexion.")
         QtWidgets.QApplication.restoreOverrideCursor()
-        self.pushButton_2.setEnabled(True)
+        self.btn_guardar.setEnabled(True)
 
     def set_image(self, url):
         """ Coloca la imagen del video para identificarlo correctamente """
@@ -61,42 +70,66 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
 
     def signal_guardar(self):
-        """ accion el pushbutton_2, indicando para guardar el archivo...
+        """ accion el btn_guardar, indicando para guardar el archivo...
         >>> Preguntemos donde! """
 
         try:
             filename, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Guardar como...", self.edit_nombre.text(), f"{self.preffered_format} (*.{self.preffered_format})")
             if filename != "":
-                self.progressBar.setEnabled(True)
-                self.pushButton_2.setEnabled(False)
-                self.edit_cb_extension.setEnabled(False)
+                self.limpia_pantalla()
+                self.descargar_musica(self.preffered_format, filename)
 
-                self.vg.getVideo(self, self.preffered_format, filename)
 
-        except TypeError:
-            self.error_inesperado()
+        except TypeError as err:
+            self.error_inesperado(f"Error: {err}")
 
     def progressHook(self, d):
         """ Nuestro hook con ydl que nos indica el estado de la descarga """
         if d["status"] == "downloading":
             self.progressBar.setValue(d["downloaded_bytes"])
+            self.lbl_progress.setText(f"{format_bytes(d['downloaded_bytes'])}/{format_bytes(d['total_bytes'])} - a {format_bytes(d['speed'])}/s")
+            if self.run_downloader is False:
+                raise ValueError
+
         if d["status"] == "finished":
-            self.progressBar.setValue(0)
-            self.pushButton_2.setEnabled(True)
-            self.progressBar.setEnabled(False)
-            self.edit_cb_extension.setEnabled(True)
             QtWidgets.QMessageBox.information(self, "Operación realizada", "¡Se ha descargado la canción exitosamente!")
+            self.limpia_pantalla(False)
         if d["status"] == "error":
-            self.progressBar.setValue(0)
-            self.pushButton_2.setEnabled(True)
-            self.progressBar.setEnabled(False)
-            self.edit_cb_extension.setEnabled(True)
             self.error_inesperado()
+            self.limpia_pantalla(False)
 
 
     def error_inesperado(self, txt="Ocurrio un error inesperado."):
         QtWidgets.QMessageBox.warning(self, "Error", txt)
 
+    def descargar_musica(self, format, path):
+        self.run_downloader = True
+        worker = Worker(self.vg.getVideo, (self, self.preffered_format, path))
+        self.threadpool.start(worker)
+
+    def signal_btn_cancelar(self):
+        self.run_downloader = False
+        self.error_inesperado("Se cancelo la descarga")
+        self.limpia_pantalla(False)
+
+    def limpia_pantalla(self, flag=True):
+        """ Limpia los valores
+        >>> flag == True: Bloquea todo menos el boton cancelar
+        >>> flag == False: Desbloquea todas las opciones y bloquea cancelar """
+        if flag:
+            self.btn_cancelar.setEnabled(True)
+            self.progressBar.setEnabled(True)
+            self.edit_cb_extension.setEnabled(False)
+            self.btn_guardar.setEnabled(False)
+            self.edit_nombre.setEnabled(False)
+        else:
+            self.btn_cancelar.setEnabled(False)
+            self.progressBar.setEnabled(False)
+            self.progressBar.setValue(0)
+            self.lbl_progress.setText("")
+            self.edit_cb_extension.setEnabled(True)
+            self.btn_guardar.setEnabled(True)
+            self.edit_nombre.setEnabled(True)
 
 
 def format_bytes(size):
