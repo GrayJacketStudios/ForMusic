@@ -55,7 +55,7 @@ class VideoGetter:
             try:
                 ydl.download([self.url])
             except ValueError:
-                print("Programa detenido...?")
+                return
 
 
 

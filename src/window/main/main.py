@@ -46,7 +46,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         elif res == -2:
             self.error_inesperado("No nos hemos podido conectar, revisa tu conexion.")
         QtWidgets.QApplication.restoreOverrideCursor()
-        self.pushButton_2.setEnabled(True)
+        self.btn_guardar.setEnabled(True)
 
     def set_image(self, url):
         """ Coloca la imagen del video para identificarlo correctamente """
@@ -70,15 +70,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
 
     def signal_guardar(self):
-        """ accion el pushbutton_2, indicando para guardar el archivo...
+        """ accion el btn_guardar, indicando para guardar el archivo...
         >>> Preguntemos donde! """
 
         try:
             filename, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Guardar como...", self.edit_nombre.text(), f"{self.preffered_format} (*.{self.preffered_format})")
             if filename != "":
-                self.progressBar.setEnabled(True)
-                self.pushButton_2.setEnabled(False)
-                self.edit_cb_extension.setEnabled(False)
+                self.limpia_pantalla()
                 self.descargar_musica(self.preffered_format, filename)
 
 
@@ -89,20 +87,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         """ Nuestro hook con ydl que nos indica el estado de la descarga """
         if d["status"] == "downloading":
             self.progressBar.setValue(d["downloaded_bytes"])
+            self.lbl_progress.setText(f"{format_bytes(d['downloaded_bytes'])}/{format_bytes(d['total_bytes'])} - a {format_bytes(d['speed'])}/s")
             if self.run_downloader is False:
                 raise ValueError
+
         if d["status"] == "finished":
-            self.progressBar.setValue(0)
-            self.pushButton_2.setEnabled(True)
-            self.progressBar.setEnabled(False)
-            self.edit_cb_extension.setEnabled(True)
             QtWidgets.QMessageBox.information(self, "Operación realizada", "¡Se ha descargado la canción exitosamente!")
+            self.limpia_pantalla(False)
         if d["status"] == "error":
-            self.progressBar.setValue(0)
-            self.pushButton_2.setEnabled(True)
-            self.progressBar.setEnabled(False)
-            self.edit_cb_extension.setEnabled(True)
             self.error_inesperado()
+            self.limpia_pantalla(False)
 
 
     def error_inesperado(self, txt="Ocurrio un error inesperado."):
@@ -115,10 +109,27 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def signal_btn_cancelar(self):
         self.run_downloader = False
+        self.error_inesperado("Se cancelo la descarga")
+        self.limpia_pantalla(False)
 
-
-
-
+    def limpia_pantalla(self, flag=True):
+        """ Limpia los valores
+        >>> flag == True: Bloquea todo menos el boton cancelar
+        >>> flag == False: Desbloquea todas las opciones y bloquea cancelar """
+        if flag:
+            self.btn_cancelar.setEnabled(True)
+            self.progressBar.setEnabled(True)
+            self.edit_cb_extension.setEnabled(False)
+            self.btn_guardar.setEnabled(False)
+            self.edit_nombre.setEnabled(False)
+        else:
+            self.btn_cancelar.setEnabled(False)
+            self.progressBar.setEnabled(False)
+            self.progressBar.setValue(0)
+            self.lbl_progress.setText("")
+            self.edit_cb_extension.setEnabled(True)
+            self.btn_guardar.setEnabled(True)
+            self.edit_nombre.setEnabled(True)
 
 
 def format_bytes(size):
