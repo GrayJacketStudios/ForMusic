@@ -1,5 +1,5 @@
 import youtube_dl
-
+import os
 class VideoGetter:
     def __init__(self):
         self.url = None
@@ -55,6 +55,7 @@ class VideoGetter:
             try:
                 ydl.download([self.url])
             except ValueError:
+                os.remove(f"{path}.part")
                 return
 
 
