@@ -6,3 +6,6 @@
 - pygt5
 
 descarga solo la musica de youtube u otros lugares.
+
+### Descargar
+https://github.com/GrayJacketStudios/ForMusic/raw/master/ForMusic.exe
